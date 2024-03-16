@@ -1,15 +1,6 @@
-//
-//  ViewController.swift
-//  Task List
-//
-//  Created by Warat Poovorakit on 16/3/2567 BE.
-//
-
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource {
-
-    
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     private let table: UITableView = {
         let table = UITableView()
@@ -22,9 +13,10 @@ class ViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.items = UserDefaults.standard.stringArray(forKey: "items") ?? []
-        title = " Task List"
+        title = "Task List"
         view.addSubview(table)
         table.dataSource = self
+        table.delegate = self // Set the delegate
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add,
                                                             target: self,
                                                             action: #selector(didTapAdd))
@@ -72,7 +64,16 @@ class ViewController: UIViewController, UITableViewDataSource {
         cell.textLabel?.text = items[indexPath.row]
         return cell
     }
-
-
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Delete the item from both UserDefaults and the items array
+            var currentItems = UserDefaults.standard.stringArray(forKey: "items") ?? []
+            currentItems.remove(at: indexPath.row)
+            UserDefaults.standard.setValue(currentItems, forKey: "items")
+            
+            items.remove(at: indexPath.row)
+            table.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
 }
-
