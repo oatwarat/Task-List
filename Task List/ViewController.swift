@@ -21,6 +21,7 @@ class ViewController: UIViewController, UITableViewDataSource {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.items = UserDefaults.standard.stringArray(forKey: "items") ?? []
         title = " Task List"
         view.addSubview(table)
         table.dataSource = self
@@ -37,13 +38,17 @@ class ViewController: UIViewController, UITableViewDataSource {
             field.placeholder = "Enter item..."
         }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Done", style: .default, handler: { (_) in
+        alert.addAction(UIAlertAction(title: "Done", style: .default, handler: { [weak self](_) in
             if let field = alert.textFields?.first{
                 if let text = field.text, !text.isEmpty{
                     
                     DispatchQueue.main.async{
-                    self.items.append(text)
-                    self.table.reloadData()
+                        var currentItems = UserDefaults.standard.stringArray(forKey: "items") ?? []
+                        currentItems.append(text)
+                        UserDefaults.standard.setValue(currentItems, forKey: "items")
+                
+                        self?.items.append(text)
+                        self?.table.reloadData()
                     }
                 }
             }
